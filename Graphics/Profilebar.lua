@@ -7,7 +7,7 @@ local Values = {
 	Rank = 0,
 	FrameWidth = 250,
 	FrameHeight = 50,
-	BorderSize = 1.5,
+	BorderSize = 1,
 	ButtonBaseZ = 0,
 	BackGroundColor = COLOR.MainBackground,
 	TextColor = COLOR.TextMain,
@@ -60,7 +60,8 @@ t[#t+1] = QuadButton(Values.ButtonBaseZ)..{
 -- Player Avatar
 t[#t+1] = Def.Sprite {
 	UpdateCommand = function(self)
-		self:x(-Values.FrameWidth/2+Values.FrameHeight/2)
+		self:x(-Values.FrameWidth/2)
+		self:halign(0)
 		self:Load(Values.AvatarPath)
 		self:zoomto(Values.FrameHeight,Values.FrameHeight)
 	end
@@ -72,7 +73,7 @@ t[#t+1] = LoadFont("Common Normal")..{
 		self:xy(-Values.FrameWidth/2+Values.FrameHeight+5,10)
 		self:halign(0)
 		self:zoom(Values.RatingTextScale)
-		self:diffuse(GetRatingColors(Values.Rating))
+		self:diffuse(GetRatingColor(Values.Rating))
 		self:settextf("%0.2f | #%d",Values.Rating, Values.Rank)
 	end
 }

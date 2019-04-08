@@ -2,11 +2,9 @@ local curSong = nil
 local start = 0
 local delay = 0.02
 local startFromPreview = true
-local loop = true
 local curPath = ""
 local sampleStart = 0
 local musicLength = 0
-local loops = 0
 local sampleEvent = false
 
 
@@ -59,7 +57,6 @@ local t = Def.ActorFrame{
 	end,
 	CurrentSongChangedMessageCommand = function(self)
 		sampleEvent = false
-		loops = 0
 		SOUND:StopMusic()
 		deltaSum = 0
 		curSong = GAMESTATE:GetCurrentSong()
@@ -86,7 +83,6 @@ local t = Def.ActorFrame{
 	end,
 	PreviewNoteFieldDeletedMessageCommand = function(self)
 		sampleEvent = true
-		loops = 0
 		self:SetUpdateFunctionInterval(0.002)
 		SOUND:StopMusic()
 	end

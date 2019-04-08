@@ -6,9 +6,7 @@ t[#t+1] = Def.Quad{
 	end
 }
 
-local ssm
-local frameWidth = 100
-local frameHeight = 100
+t[#t + 1] = LoadActor("../_songbg.lua")
 
 local intervals = {22,31.5,44,63,88,125,177,250,355,500,710,1000,1420,2000,2840,4000,5680}
 
@@ -27,6 +25,8 @@ t[#t+1] = audioVisualizer:new{
 	end
 }
 
+
 t[#t + 1] = LoadActor("bgm")
+
 
 return t

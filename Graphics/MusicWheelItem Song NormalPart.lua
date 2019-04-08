@@ -100,9 +100,9 @@ t[#t+1] = Def.Sprite {
 
 t[#t+1] = LoadFont("Common Normal") .. {
 	InitCommand = function(self)
-		self:xy(340-5,-22+5)
+		self:xy(500-5,-22+10)
 		self:halign(1)
-		self:zoom(0.3)
+		self:zoom(0.4)
 	end,
 	SetMessageCommand = function(self,params)
 		local song = params.Song
@@ -110,14 +110,19 @@ t[#t+1] = LoadFont("Common Normal") .. {
 		if song then
 			local seconds = song:GetStepsSeconds()
 			self:visible(true)
-			if seconds > PREFSMAN:GetPreference("MarathonVerSongSeconds") then
-				self:settext("Marathon")
-			elseif seconds > PREFSMAN:GetPreference("LongVerSongSeconds") then
+			if seconds < PREFSMAN:GetPreference("LongVerSongSeconds") then
+				self:settext("Normal")
+				self:diffuse(COLOR.TextMain)
+			elseif seconds < PREFSMAN:GetPreference("MarathonVerSongSeconds") then
 				self:settext("Long")
+				self:diffuse(COLOR.SongLong)
+			elseif seconds < PREFSMAN:GetPreference("MarathonVerSongSeconds")*2 then
+				self:settext("Marathon")
+				self:diffuse(COLOR.SongMarathon)
 			else
-				self:visible(false)
+				self:settext("UltraMarathon")
+				self:diffuse(COLOR.SongUltraMarathon)
 			end
-			--self:diffuse(getSongLengthColor(seconds))
 		end
 	end
 }
