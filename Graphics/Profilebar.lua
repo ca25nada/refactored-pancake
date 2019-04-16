@@ -1,4 +1,4 @@
-local args = ...
+local args = ... or {}
 
 local Values = {
 	AvatarPath = "",
