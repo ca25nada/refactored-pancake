@@ -1,4 +1,3 @@
-
 -- Adapted from  Simply-Love-SM5/Scripts/SL-Helpers.lua
 function Border(width, height, bw)
 	return Def.ActorFrame {
@@ -23,127 +22,6 @@ function Border(width, height, bw)
 	}
 end
 
-------------------------------------------------
-
-BUTTON = {
-	topActor = false,
-	topActorZ = 0,
-	topActorName = false,
-	topInput = false,
-}
-
-
--- To check the Z axis for getting the topmost actor upon clicking:
--- Give an actor a Z value and call addPressedActors(self) inside any command.
--- (e.g. MouseLeftClickMessageCommand)
--- If the actor is supposed to react to the click (e.g. button), add a TopPressedCommand to the actor.
--- TopPressedCommand will be called for a single actor with the highest Z value.
-
--- The above is already done for you for quads if you call:
--- quadButton(z)
--- So the above only applies for adding non-quad actors as buttons.
-
--- Call this when left/right click event occurs and isOver() is true.
--- Sets the actor calling this as the top actor if it has the highest Z value.
-function BUTTON.AddPressedActors(self, actor, screenName, input)
-	local top = SCREENMAN:GetTopScreen()
-	local topName -- top screen name
-
-	if top == nil then
-		return
-	else
-		topName = top:GetName()
-	end
-
-	-- SCREENMAN:SystemMessage(string.format("%s %s",screenName, topName))
-	if topName ~= screenName then
-		return
-	end
-
-	local z = actor:GetZ()
-	if z > self.topActorZ then
-		self.topActorZ = z
-		self.topActor = actor
-		topName = actor:GetName()
-		self.topInput = input
-	end
-end
-
--- Resets the variables back to original values.
-function BUTTON.ResetPressedActors(self)
-	self.topActor = false
-	self.topActorZ = 0
-	self.topActorName = false
-end
-
--- Plays the TopPressed Command on the current top actor.
-function BUTTON.PlayTopPressedActor(self)	
-	-- SCREENMAN:SystemMessage("PLAY PLS")
-	if self.topActor then
-
-		-- No way of checking whether the actor being referenced is stale
-		-- so just catch the error it throws with pcall instead.
-		local result,value = pcall(self.topActor.playcommand, self.topActor, "TopPressed" , {input = self.topInput})
-		-- self.topActor:playcommand("TopPressed", {input = self.topInput}) 
-
-		-- Reset the top actor if there's an error
-		if not result then
-			self:ResetPressedActors()
-		end
-	end
-end
-
-
---Gets the true X/Y Position by recursively grabbing the parents' position.
---Does not take zoom into account.
-function Actor.GetTrueX(self)
-	if self == nil then
-		return 0
-	end
-
-	local parent = self:GetParent()
-
-	if parent == nil then
-		return self:GetX() or 0
-	else
-		return self:GetX() + parent:getTrueX()
-	end
-end
-
-function Actor.GetTrueY(self)
-	if self == nil then
-		return 0
-	end
-
-	local parent = self:GetParent()
-
-	if parent == nil then
-		return self:GetY() or 0
-	else
-		return self:GetY() + parent:getTrueY()
-	end
-end
-
---Button Rollovers
-function Actor.IsOver(self)
-	local x = self:getTrueX()
-	local y = self:getTrueY()
-	local hAlign = self:GetHAlign()
-	local vAlign = self:GetVAlign()
-	local w = self:GetZoomedWidth()
-	local h = self:GetZoomedHeight()
-
-	local mouseX = INPUTFILTER:GetMouseX()
-	local mouseY = INPUTFILTER:GetMouseY()
-
-	local withinX = (mouseX >= (x-(hAlign*w))) and (mouseX <= ((x+w)-(hAlign*w)))
-	local withinY = (mouseY >= (y-(vAlign*h))) and (mouseY <= ((y+h)-(vAlign*h)))
-
-	return (withinX and withinY)
-end
-
-
-
 -- Basic clickable button implementation with quads
 function QuadButton(z)
 	local topName 
@@ -152,26 +30,70 @@ function QuadButton(z)
 		InitCommand= function(self) 
 			self:z(z)
 		end,
-
 		OnCommand = function(self)
+			BUTTON:AddButtons(self)
 			local top = SCREENMAN:GetTopScreen()
 			if top ~= nil then
 				topName = top:GetName()
 			end
 		end,
+		MouseOverCommand = function(self) end,
+		MouseOutCommand = function(self) end,
+		MouseUpCommand = function(self) end,
+		MouseDownCommand = function(self) end,
+		MouseClickCommand = function(self) end,
+		MouseReleaseCommand = function(self) end,
+	}
+	return t
+end
 
-		MouseLeftClickMessageCommand = function(self)
-			if self:IsOver() then
-				BUTTON:addPressedActors(self, topName, "DeviceButton_left mouse button")
+-- Basic clickable button implementation with quads
+function ButtonDemo(z)
+	local topName 
+
+	local t = Def.ActorFrame{
+		RolloverUpdateCommand = function(self, params)
+			self:PlayCommandsOnChildren("RolloverUpdate", params)
+		end,
+		ClickCommand = function(self, params)
+			self:PlayCommandsOnChildren("Click", params)
+		end
+	}
+	
+	t[#t+1] = Border(150, 30, 5)..{
+		InitCommand = function(self)
+			self:visible(false):diffuse(color("#000000"))
+		end,
+		RolloverUpdateCommand = function(self, params)
+			if params.update == "over" then
+				self:visible(true)
 			end
-		end,
-		MouseRightClickMessageCommand = function(self)
-			if self:IsOver() then
-				BUTTON:addPressedActors(self, topName, "DeviceButton_right mouse button")
+		
+			if params.update == "out" then
+				self:visible(false)
 			end
+		end
+	}
+
+	t[#t+1] = QuadButton(z)..{
+		InitCommand= function(self) 
+			self:z(z):zoomto(150,30):diffusealpha(0.5)
 		end,
-		TopPressedCommand = function(self)
+		MouseOverCommand = function(self) self:GetParent():playcommand("RolloverUpdate",{update = "over"}) end,
+		MouseOutCommand = function(self) self:GetParent():playcommand("RolloverUpdate",{update = "out"}) end,
+		MouseUpCommand = function(self) self:diffuse(color("#FF0000")) self:GetParent():playcommand("Click",{update = "OnMouseUp"}) end,
+		MouseDownCommand = function(self) self:diffuse(color("#00FF00")) self:GetParent():playcommand("Click",{update = "OnMouseDown"}) end,
+		MouseClickCommand = function(self) self:diffuse(color("#0000FF")) self:GetParent():playcommand("Click",{update = "OnMouseClicked"}) end,
+		MouseReleaseCommand = function(self) self:diffuse(color("#FF00FF")) self:GetParent():playcommand("Click",{update = "OnMouseReleased"}) end,
+	}
+
+	t[#t+1] = LoadFont("Common Normal") .. {
+		InitCommand= function(self) 
+			self:y(0):zoom(0.6):settext("init")
 		end,
+		ClickCommand = function(self, params)
+			self:settext(params.update)
+		end
 	}
 
 	return t
@@ -218,15 +140,9 @@ function CheckBox(z, checked)
 			self:zoomto(zoom*100,zoom*100)
 			self:diffuse(color("#FFFFFF")):diffusealpha(0)
 		end,
-		TopPressedCommand = function(self, params)
-			if params.input == "DeviceButton_left mouse button" then
-				self:GetParent():playcommand("Toggle")
-				self:finishtweening()
-				self:diffusealpha(0.2)
-				self:smooth(0.3)
-				self:diffusealpha(0)
-			end
-		end
+		OnCommand = function(self)
+			BUTTON:AddButtons(self)
+		end,
 	}
 
 	t[#t+1] = LoadActor(THEME:GetPathG("", "_x"))..{

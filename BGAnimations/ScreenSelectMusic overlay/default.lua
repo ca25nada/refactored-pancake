@@ -1,5 +1,7 @@
 local t = Def.ActorFrame{}
 
+t[#t+1] = LoadActor("../_mouse.lua")
+
 t[#t+1] = LoadActor(THEME:GetPathG("","Profilebar"))..{
 	OnCommand = function(self)
 		self:xy(SCREEN_WIDTH-140,45)
@@ -24,7 +26,7 @@ t[#t+1] = LoadActor(THEME:GetPathG("","Profilebar"))..{
 			Name = GetPlayerOrMachineProfile(PLAYER):GetDisplayName()
 			Params = {AvatarPath = AvatarPath, Rating = LocalSR, ProfileName = Name, Rank = 0}
 		end
-		
+
 		self:playcommand("Update", Params)
 	end,
 	LoginMessageCommand = function(self) self:playcommand("Set") end,

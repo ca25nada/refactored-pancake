@@ -29,11 +29,7 @@ local t = Def.ActorFrame{
 	end,
 	UpdateCommand = function(self, params)
 		SetValues(params)
-		self:RunCommandsOnChildren(
-			function(self)
-				self:playcommand("Update")
-			end
-		)
+		self:PlayCommandsOnChildren("Update")
 	end
 }
 
