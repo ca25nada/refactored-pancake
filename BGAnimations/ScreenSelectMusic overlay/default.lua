@@ -34,6 +34,63 @@ t[#t+1] = LoadActor(THEME:GetPathG("","Profilebar"))..{
 	OnlineUpdateMessageCommand = function(self) self:playcommand("Set") end,
 }
 
+
 t[#t+1] = StandardDecorationFromFileOptional("Header","Header")
+
+t[#t+1] = ButtonDemo(500)..{
+	InitCommand = function(self)
+		self:xy(700,SCREEN_CENTER_Y)
+	end
+}
+
+t[#t+1] = ButtonDemo(500)..{
+	InitCommand = function(self)
+		self:xy(900,SCREEN_CENTER_Y)
+	end
+}
+
+t[#t+1] = ButtonDemo(500)..{
+	InitCommand = function(self)
+		self:xy(1100,SCREEN_CENTER_Y)
+	end
+}
+
+
+t[#t+1] = ButtonDemo(500)..{
+	InitCommand = function(self)
+		self:xy(700,SCREEN_CENTER_Y-200)
+	end
+}
+
+t[#t+1] = ButtonDemo(500)..{
+	InitCommand = function(self)
+		self:xy(900,SCREEN_CENTER_Y-200)
+	end
+}
+
+t[#t+1] = ButtonDemo(500)..{
+	InitCommand = function(self)
+		self:xy(1100,SCREEN_CENTER_Y-200)
+	end
+}
+
+t[#t+1] = ButtonDemo(500)..{
+	InitCommand = function(self)
+		self:xy(700,SCREEN_CENTER_Y+200)
+	end
+}
+
+t[#t+1] = ButtonDemo(500)..{
+	InitCommand = function(self)
+		self:xy(900,SCREEN_CENTER_Y+200)
+	end
+}
+
+t[#t+1] = ButtonDemo(500)..{
+	InitCommand = function(self)
+		self:xy(1100,SCREEN_CENTER_Y+200)
+	end
+}
+
 
 return t
