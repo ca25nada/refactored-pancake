@@ -1,4 +1,8 @@
-local t = Def.ActorFrame{}
+local t = Def.ActorFrame{
+	InitCommand = function(self)
+		self:rotationz(0)
+	end;
+}
 
 t[#t+1] = LoadActor("../_mouse.lua")
 
@@ -37,60 +41,71 @@ t[#t+1] = LoadActor(THEME:GetPathG("","Profilebar"))..{
 
 t[#t+1] = StandardDecorationFromFileOptional("Header","Header")
 
-t[#t+1] = ButtonDemo(500)..{
+t[#t+1] = Def.ActorFrame{
 	InitCommand = function(self)
-		self:xy(700,SCREEN_CENTER_Y)
-	end
+		self:xy(SCREEN_CENTER_X+200,SCREEN_CENTER_Y):spin():effectmagnitude(0,0	,-10)
+	end,
+	Def.ActorFrame{
+		InitCommand = function(self)
+			self:xy(100,100):spin():effectmagnitude(0,0	,10)
+		end,
+		ButtonDemo(500)..{
+			InitCommand = function(self)
+				self:xy(0,0):rotationz(12):spin():effectmagnitude(0,0,(math.random()-0.5)*50)
+			end
+		},
+		ButtonDemo(500)..{
+			InitCommand = function(self)
+				self:xy(-200,0):rotationz(12):spin():effectmagnitude(0,0,(math.random()-0.5)*50)
+			end
+		},
+		ButtonDemo(500)..{
+			InitCommand = function(self)
+				self:xy(200,0):rotationz(12):spin():effectmagnitude(0,0,(math.random()-0.5)*50)
+			end
+		},
+		ButtonDemo(500)..{
+			InitCommand = function(self)
+				self:xy(-200,-200):rotationz(12):spin():effectmagnitude(0,0,(math.random()-0.5)*50)
+			end
+		},
+		ButtonDemo(500)..{
+			InitCommand = function(self)
+				self:xy(0,-200):rotationz(12):spin():effectmagnitude(0,0,(math.random()-0.5)*50)
+			end
+		},
+		ButtonDemo(500)..{
+			InitCommand = function(self)
+				self:xy(200,-200):rotationz(12):spin():effectmagnitude(0,0,(math.random()-0.5)*60)
+			end
+		},
+		ButtonDemo(500)..{
+			InitCommand = function(self)
+				self:xy(-200,200):rotationz(12):spin():effectmagnitude(0,0,(math.random()-0.5)*50)
+			end
+		},
+		ButtonDemo(500)..{
+			InitCommand = function(self)
+				self:xy(0,200):rotationz(12):spin():effectmagnitude(0,0,(math.random()-0.5)*50)
+			end
+		},
+		ButtonDemo(500)..{
+			InitCommand = function(self)
+				self:xy(200,200):rotationz(12):spin():effectmagnitude(0,0,(math.random()-0.5)*50)
+			end
+		}
+	}
 }
 
-t[#t+1] = ButtonDemo(500)..{
+t[#t+1] = Def.ActorFrame{
 	InitCommand = function(self)
-		self:xy(900,SCREEN_CENTER_Y)
-	end
+		self:xy(SCREEN_CENTER_X,SCREEN_CENTER_Y):rotationz(-90)
+	end,
+	ButtonDemo(500)..{
+		InitCommand = function(self)
+			self:xy(50,50):rotationz(90)
+		end
+	}
 }
-
-t[#t+1] = ButtonDemo(500)..{
-	InitCommand = function(self)
-		self:xy(1100,SCREEN_CENTER_Y)
-	end
-}
-
-
-t[#t+1] = ButtonDemo(500)..{
-	InitCommand = function(self)
-		self:xy(700,SCREEN_CENTER_Y-200)
-	end
-}
-
-t[#t+1] = ButtonDemo(500)..{
-	InitCommand = function(self)
-		self:xy(900,SCREEN_CENTER_Y-200)
-	end
-}
-
-t[#t+1] = ButtonDemo(500)..{
-	InitCommand = function(self)
-		self:xy(1100,SCREEN_CENTER_Y-200)
-	end
-}
-
-t[#t+1] = ButtonDemo(500)..{
-	InitCommand = function(self)
-		self:xy(700,SCREEN_CENTER_Y+200)
-	end
-}
-
-t[#t+1] = ButtonDemo(500)..{
-	InitCommand = function(self)
-		self:xy(900,SCREEN_CENTER_Y+200)
-	end
-}
-
-t[#t+1] = ButtonDemo(500)..{
-	InitCommand = function(self)
-		self:xy(1100,SCREEN_CENTER_Y+200)
-	end
-}
-
 
 return t

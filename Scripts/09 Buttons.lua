@@ -1,6 +1,36 @@
 
+-- Rotates coordinates x,y by an angle (degrees) from the origin.
+local function rotateFromOrigin(x, y, angle)
+    local rad = math.rad(angle)
+    return x*math.cos(rad) - y*math.sin(rad), x*math.sin(rad) + y*math.cos(rad)
+end
+
+-- Returns x2,x2 after rotated from x1,y1 by a specified angle
+local function rotateFromPoint(x1, y1, x2, y2, angle)
+    local x = x2-x1
+    local y = y2-y1
+
+    local newx, newy = rotateFromOrigin(x, y, angle)
+    return newx+x1, newy+y1
+end
+
+function Actor.GetTrueRotationZ(self)
+    if self == nil then
+        return 0
+    end
+
+    local parent = self:GetParent()
+
+    if parent == nil then
+        return self:GetRotationZ()
+    else 
+        return self:GetRotationZ() + parent:GetTrueRotationZ()
+    end
+end
+
 --Gets the true X/Y Position by recursively grabbing the parents' position.
---Does not take zoom into account.
+--Now Attempts to take parent actors zoom and rotation into account.
+
 function Actor.GetTrueX(self)
 	if self == nil then
 		return 0
@@ -9,9 +39,10 @@ function Actor.GetTrueX(self)
 	local parent = self:GetParent()
 
 	if parent == nil then
-		return self:GetX() or 0
-	else
-		return self:GetX() + parent:GetTrueX()
+		return self:GetX()
+    else
+        local newX,newY = rotateFromOrigin(self:GetX(), self:GetY(), parent:GetTrueRotationZ())
+		return newX + parent:GetTrueX()
 	end
 end
 
@@ -23,13 +54,14 @@ function Actor.GetTrueY(self)
 	local parent = self:GetParent()
 
 	if parent == nil then
-		return self:GetY() or 0
-	else
-		return self:GetY() + parent:GetTrueY()
+		return self:GetY()
+    else
+        local newX,newY = rotateFromOrigin(self:GetX(), self:GetY(), parent:GetTrueRotationZ())
+		return newY + parent:GetTrueY()
 	end
 end
 
---Button Rollovers
+-- Button Rollovers
 function Actor.IsOver(self, mouseX, mouseY)
 	if mouseX == nil then
 		mouseX = INPUTFILTER:GetMouseX()
@@ -37,17 +69,20 @@ function Actor.IsOver(self, mouseX, mouseY)
 
 	if mouseY == nil then
 		mouseY = INPUTFILTER:GetMouseY()
-	end 
+    end
+    
+    local rotationZ = self:GetTrueRotationZ()
 
-	local x = self:GetTrueX()
-	local y = self:GetTrueY()
-	local hAlign = self:GetHAlign()
-	local vAlign = self:GetVAlign()
-	local w = self:GetZoomedWidth()
-	local h = self:GetZoomedHeight()
+    local x, y = self:GetX(), self:GetY()
+    local tx, ty =  self:GetTrueX(), self:GetTrueY()
+	local hAlign, vAlign = self:GetHAlign(), self:GetVAlign()
+    local w, h = self:GetZoomedWidth(), self:GetZoomedHeight()
 
-	local withinX = (mouseX >= (x-(hAlign*w))) and (mouseX <= ((x+w)-(hAlign*w)))
-	local withinY = (mouseY >= (y-(vAlign*h))) and (mouseY <= ((y+h)-(vAlign*h)))
+    -- Since the boundaries for a rotated rectangle is a pain to calculate, rotate the mouse X/Y coordinates in the opposite direction and compare.
+    local newMouseX, newMouseY = rotateFromOrigin(mouseX-tx, mouseY-ty, -rotationZ)
+
+	local withinX = (newMouseX >= (x-(hAlign*w))) and (newMouseX <= ((x+w)-(hAlign*w)))
+	local withinY = (newMouseY >= (y-(vAlign*h))) and (newMouseY <= ((y+h)-(vAlign*h)))
 
 	return (withinX and withinY)
 end
@@ -58,7 +93,8 @@ end
 BUTTON = {
 	ButtonTable = {}, -- Table containing all the registered buttons for the current screen. (Might allow multiple screens in the future)
 	CurTopButton = nil, -- Current top button that the mouse is hovering over.
-	CurDownButton = nil, -- Current button that is being held down.
+    CurDownButton = nil, -- Current button that is being held down.
+    IsDraggable = false
 }
 
 -- Resets the list of buttons currently added to the given screen. Call when the screen is being initialized.
@@ -71,6 +107,10 @@ function BUTTON.AddButtons(self, Actor)
 	self.ButtonTable[#self.ButtonTable+1] = Actor
 end
 
+function BUTTON.AddDraggable(self, Actor)
+
+end
+
 -- Updates the position. Sends a broadcast if the position has changed.
 -- This is called constantly from _mouse.lua via an updatefunction.
 function BUTTON.UpdateMousePosition(self)
@@ -78,7 +118,7 @@ function BUTTON.UpdateMousePosition(self)
 	newX = INPUTFILTER:GetMouseX()
 	newY = INPUTFILTER:GetMouseY()
 
-	update = (newX ~= self.MouseX) or (newY ~= self.MouseY)
+	update = true or (newX ~= self.MouseX) or (newY ~= self.MouseY)
 
 	self.MouseX = newX
 	self.MouseY = newY
@@ -151,7 +191,7 @@ function BUTTON.GetTopButton(self, x, y)
 	for i,v in ipairs(self.ButtonTable) do
 		if v:IsOver(x, y) then 
 			local z = v:GetZ()
-			if z > topZ then
+			if z >= topZ then
 				topButton = v
 				topZ = z
 			end

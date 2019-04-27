@@ -60,7 +60,7 @@ function ButtonDemo(z)
 		end
 	}
 	
-	t[#t+1] = Border(150, 30, 5)..{
+	t[#t+1] = Border(150, 50, 5)..{
 		InitCommand = function(self)
 			self:visible(false):diffuse(color("#000000"))
 		end,
@@ -77,7 +77,7 @@ function ButtonDemo(z)
 
 	t[#t+1] = QuadButton(z)..{
 		InitCommand= function(self) 
-			self:z(z):zoomto(150,30):diffusealpha(0.5)
+			self:z(z):zoomto(150,50):diffusealpha(0.5)
 		end,
 		MouseOverCommand = function(self) self:GetParent():playcommand("RolloverUpdate",{update = "over"}) end,
 		MouseOutCommand = function(self) self:GetParent():playcommand("RolloverUpdate",{update = "out"}) end,
@@ -92,7 +92,7 @@ function ButtonDemo(z)
 			self:y(0):zoom(0.6):settext("init")
 		end,
 		ClickCommand = function(self, params)
-			self:settext(params.update)
+			self:settextf("%.0f:%.0f",self:GetTrueX(), self:GetTrueY())
 		end
 	}
 
