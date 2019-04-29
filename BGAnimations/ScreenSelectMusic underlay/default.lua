@@ -6,7 +6,22 @@ t[#t+1] = Def.Quad{
 	end
 }
 
-t[#t + 1] = LoadActor("../_songbg.lua")
+t[#t+1] = LoadActor("../_songbg.lua")
+
+t[#t+1] = Def.Quad{
+	InitCommand = function(self)
+		self:xy(SCREEN_CENTER_X, SCREEN_HEIGHT):valign(1)
+		self:zoomto(SCREEN_WIDTH,SCREEN_HEIGHT/8):fadetop(1)
+	end
+}
+
+t[#t+1] = Def.Quad{
+	InitCommand = function(self)
+		self:xy(SCREEN_CENTER_X, 0):valign(0)
+		self:zoomto(SCREEN_WIDTH,SCREEN_HEIGHT/8):fadebottom(1)
+	end
+}
+
 
 local intervals = {22,31.5,44,63,88,125,177,250,355,500,710,1000,1420,2000,2840,4000,5680}
 
