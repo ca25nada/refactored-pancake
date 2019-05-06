@@ -24,17 +24,15 @@ end
 
 -- Basic clickable button implementation with quads
 function QuadButton(z)
-	local topName 
 
 	local t = Def.Quad{
-		InitCommand= function(self) 
+		InitCommand = function(self) 
 			self:z(z)
 		end,
 		OnCommand = function(self)
-			BUTTON:AddButtons(self)
-			local top = SCREENMAN:GetTopScreen()
-			if top ~= nil then
-				topName = top:GetName()
+			local screen = SCREENMAN:GetTopScreen()
+			if screen ~= nil then
+				BUTTON:AddButtons(self, screen)
 			end
 		end,
 		MouseOverCommand = function(self) end,
@@ -49,7 +47,6 @@ end
 
 -- Basic clickable button implementation with quads
 function ButtonDemo(z)
-	local topName 
 
 	local t = Def.ActorFrame{
 		RolloverUpdateCommand = function(self, params)
@@ -57,7 +54,10 @@ function ButtonDemo(z)
 		end,
 		ClickCommand = function(self, params)
 			self:PlayCommandsOnChildren("Click", params)
-		end
+		end,
+		DragUpdateCommand = function(self, params)
+			self:xy(params.MouseX, params.MouseY)
+		end,
 	}
 	
 	t[#t+1] = Border(150, 50, 5)..{
@@ -77,14 +77,15 @@ function ButtonDemo(z)
 
 	t[#t+1] = QuadButton(z)..{
 		InitCommand= function(self) 
-			self:z(z):zoomto(150,50):diffusealpha(0.5)
+			self:z(z):zoomto(150,50):diffuse(color("#000000")):diffusealpha(0.5)
 		end,
 		MouseOverCommand = function(self) self:GetParent():playcommand("RolloverUpdate",{update = "over"}) end,
-		MouseOutCommand = function(self) self:GetParent():playcommand("RolloverUpdate",{update = "out"}) end,
-		MouseUpCommand = function(self) self:diffuse(color("#FF0000")) self:GetParent():playcommand("Click",{update = "OnMouseUp"}) end,
-		MouseDownCommand = function(self) self:diffuse(color("#00FF00")) self:GetParent():playcommand("Click",{update = "OnMouseDown"}) end,
-		MouseClickCommand = function(self) self:diffuse(color("#0000FF")) self:GetParent():playcommand("Click",{update = "OnMouseClicked"}) end,
-		MouseReleaseCommand = function(self) self:diffuse(color("#FF00FF")) self:GetParent():playcommand("Click",{update = "OnMouseReleased"}) end,
+		MouseOutCommand = function(self) self:GetParent():playcommand("RolloverUpdate",{update = "out"}) self:GetParent():playcommand("Click") end,
+		MouseUpCommand = function(self) self:diffuse(color("#FF0000")):diffusealpha(0.5) self:GetParent():playcommand("Click",{update = "OnMouseUp"}) end,
+		MouseDownCommand = function(self) self:diffuse(color("#00FF00")):diffusealpha(0.5) self:GetParent():playcommand("Click",{update = "OnMouseDown"}) end,
+		MouseClickCommand = function(self) self:diffuse(color("#0000FF")):diffusealpha(0.5) self:GetParent():playcommand("Click",{update = "OnMouseClicked"}) end,
+		MouseReleaseCommand = function(self) self:diffuse(color("#FF00FF")):diffusealpha(0.5) self:GetParent():playcommand("Click",{update = "OnMouseReleased"}) end,
+		MouseDragCommand = function(self, params) self:GetParent():playcommand("DragUpdate", params) end,
 	}
 
 	t[#t+1] = LoadFont("Common Normal") .. {
@@ -92,8 +93,8 @@ function ButtonDemo(z)
 			self:y(0):zoom(0.6):settext("init")
 		end,
 		ClickCommand = function(self, params)
-			self:settextf("%.0f:%.0f",self:GetTrueX(), self:GetTrueY())
-		end
+			self:settextf("X:%.0f Y:%.0f \nAngle:%.0f",self:GetTrueX(), self:GetTrueY(), self:GetTrueRotationZ()%360)
+		end,
 	}
 
 	return t
