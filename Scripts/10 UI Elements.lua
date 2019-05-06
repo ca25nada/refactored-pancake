@@ -23,7 +23,7 @@ function Border(width, height, bw)
 end
 
 -- Basic clickable button implementation with quads
-function QuadButton(z)
+function QuadButton(z, depth)
 
 	local t = Def.Quad{
 		InitCommand = function(self) 
@@ -32,7 +32,7 @@ function QuadButton(z)
 		OnCommand = function(self)
 			local screen = SCREENMAN:GetTopScreen()
 			if screen ~= nil then
-				BUTTON:AddButtons(self, screen)
+				BUTTON:AddButton(self, screen, depth)
 			end
 		end,
 		MouseOverCommand = function(self) end,
@@ -75,12 +75,12 @@ function ButtonDemo(z)
 		end
 	}
 
-	t[#t+1] = QuadButton(z)..{
+	t[#t+1] = QuadButton(z, 1)..{
 		InitCommand= function(self) 
 			self:z(z):zoomto(150,50):diffuse(color("#000000")):diffusealpha(0.5)
 		end,
 		MouseOverCommand = function(self) self:GetParent():playcommand("RolloverUpdate",{update = "over"}) end,
-		MouseOutCommand = function(self) self:GetParent():playcommand("RolloverUpdate",{update = "out"}) self:GetParent():playcommand("Click") end,
+		MouseOutCommand = function(self) self:GetParent():playcommand("RolloverUpdate",{update = "out"}) end,
 		MouseUpCommand = function(self) self:diffuse(color("#FF0000")):diffusealpha(0.5) self:GetParent():playcommand("Click",{update = "OnMouseUp"}) end,
 		MouseDownCommand = function(self) self:diffuse(color("#00FF00")):diffusealpha(0.5) self:GetParent():playcommand("Click",{update = "OnMouseDown"}) end,
 		MouseClickCommand = function(self) self:diffuse(color("#0000FF")):diffusealpha(0.5) self:GetParent():playcommand("Click",{update = "OnMouseClicked"}) end,

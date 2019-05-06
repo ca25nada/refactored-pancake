@@ -19,7 +19,7 @@ local function Input(Event)
 end
 
 local function UpdateLoop()
-    BUTTON:UpdateMousePosition()
+    BUTTON:UpdateMouseState()
     return false
 end
 
