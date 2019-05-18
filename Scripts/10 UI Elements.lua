@@ -67,10 +67,13 @@ function ButtonDemo(z)
 		RolloverUpdateCommand = function(self, params)
 			if params.update == "over" then
 				self:visible(true)
+				TOOLTIP:Show()
+				TOOLTIP:SetText(string.format("X:%0.2f Y:%0.2f", self:GetTrueX(), self:GetTrueY()))
 			end
 		
 			if params.update == "out" then
 				self:visible(false)
+				TOOLTIP:Hide()
 			end
 		end
 	}
