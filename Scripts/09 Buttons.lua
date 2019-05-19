@@ -160,6 +160,7 @@ end
 
 function Actor.GetButtonRoot(self, depth)
 	assert(depth >= 0, "Invalid Button Depth")
+	
 	local buttonRoot = self
 	for i=0, depth, 1 do
 		buttonRoot = buttonRoot:GetParent()
@@ -223,73 +224,74 @@ BUTTON = {
 	CurTopButtonDepth = 0,
 	CurDownButton = nil, -- Current button that is being held down.
 	CurDownButtonDepth = 0,
+	UpdateOnlyOnMouseMovement = false
 }
 
 -- Resets the list of buttons currently added to the given screen. Call when the screen is being initialized.
-function BUTTON.ResetButtonTable(self, screen)
-    if screen ~= nil then
-        self.ButtonTable[screen:GetName()] = {}
+function BUTTON.ResetButtonTable(self, screenName)
+    if screenName ~= nil then
+		self.ButtonTable[screenName] = nil
+		self.CurTopButton = nil
+		self.CurDownButton = nil
     end
 end
 
 -- Add/Register actors to act as buttons. This is called whenever QuadButton() is called.
-function BUTTON.AddButton(self, actor, screen, depth)
-	if screen ~= nil then
+function BUTTON.AddButton(self, actor, screenName, depth)
+	if screenName ~= nil then
 		if depth == nil then
 			depth = 0
 		end
 
-        if self.ButtonTable[screen:GetName()] == nil then 
-			self.ButtonTable[screen:GetName()] = {}
+        if self.ButtonTable[screenName] == nil then 
+			self.ButtonTable[screenName] = {}
 		end
 		
-		if self.DepthTable[screen:GetName()] == nil then
-			self.DepthTable[screen:GetName()] = {}
+		if self.DepthTable[screenName] == nil then
+			self.DepthTable[screenName] = {}
 		end
 
-		self.ButtonTable[screen:GetName()][#self.ButtonTable[screen:GetName()]+1] = actor
-		self.DepthTable[screen:GetName()][#self.DepthTable[screen:GetName()]+1] = depth
+		self.ButtonTable[screenName][#self.ButtonTable[screenName]+1] = actor
+		self.DepthTable[screenName][#self.DepthTable[screenName]+1] = depth
     end
 end
 
 -- Updates the position. Sends a broadcast if the position has changed.
 -- This is called constantly from _mouse.lua via an updatefunction.
 function BUTTON.UpdateMouseState(self)
-    local topScreen = SCREENMAN:GetTopScreen()
+
+	local topScreen = SCREENMAN:GetTopScreen()
+
     if topScreen == nil then
         return
-    end
+	end
 
-	local update = false
+	if self.ButtonTable[topScreen:GetName()] == nil then
+		return
+	end
+
 	newX = INPUTFILTER:GetMouseX()
 	newY = INPUTFILTER:GetMouseY()
-
-	update = (newX ~= self.MouseX) or (newY ~= self.MouseY)
-
 	self.MouseX = newX
 	self.MouseY = newY
 
-	-- If mouse has moved since the last time the function was called.
-	if true then
-		
-		local curButton, curButtonDepth = self:GetTopButton(self.MouseX, self.MouseY)
-		-- If the top actor in which the mouse was hovering over has changed.
-		if curButton ~= self.CurTopButton then
-			if curButton ~= nil then 
-				self:OnMouseOver(curButton, curButtonDepth)
-			end
-			if self.CurTopButton ~= nil then
-				self:OnMouseOut(self.CurTopButton, self.CurTopButtonDepth)
-			end
-		end
-		self.CurTopButton = curButton
-		self.CurTopButtonDepth = curButtonDepth
-        
-		if self.CurDownButton ~= nil then
-            local localX, localY = self.CurDownButton:GetLocalMousePos(self.MouseX, self.MouseY, self.CurDownButtonDepth)
-            self:OnMouseDrag(self.CurDownButton, self.CurDownButtonDepth, {MouseX = localX, MouseY = localY})
-        end
 
+	local curButton, curButtonDepth = self:GetTopButton(self.MouseX, self.MouseY)
+	-- If the top actor in which the mouse was hovering over has changed.
+	if curButton ~= self.CurTopButton then
+		if curButton ~= nil then 
+			self:OnMouseOver(curButton, curButtonDepth)
+		end
+		if self.CurTopButton ~= nil then
+			self:OnMouseOut(self.CurTopButton, self.CurTopButtonDepth)
+		end
+	end
+	self.CurTopButton = curButton
+	self.CurTopButtonDepth = curButtonDepth
+	
+	if self.CurDownButton ~= nil then
+		local localX, localY = self.CurDownButton:GetLocalMousePos(self.MouseX, self.MouseY, self.CurDownButtonDepth)
+		self:OnMouseDrag(self.CurDownButton, self.CurDownButtonDepth, {MouseX = localX, MouseY = localY})
 	end
 end
 
@@ -349,6 +351,14 @@ function BUTTON.GetTopButton(self, x, y)
 	local topZ = 0
 	local topButton = nil
 	local topButtonDepth = 0
+
+	if self.ButtonTable[topScreen:GetName()] == nil then
+		return
+	end
+
+	if #self.ButtonTable[topScreen:GetName()] == 0 then
+		return
+	end
 
 	for i,v in ipairs(self.ButtonTable[topScreen:GetName()]) do
 		if v:IsOver(x, y) then 

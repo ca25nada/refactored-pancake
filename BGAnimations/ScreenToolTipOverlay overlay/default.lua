@@ -1,7 +1,9 @@
 local function UpdateLoop()
     local mouseX = INPUTFILTER:GetMouseX()
-	local mouseY = INPUTFILTER:GetMouseY()
+    local mouseY = INPUTFILTER:GetMouseY()
     TOOLTIP:SetPosition(mouseX, mouseY)
+    BUTTON:UpdateMouseState()
+
     return false
 end
 

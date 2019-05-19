@@ -1,3 +1,9 @@
+local screenName = ...
+local topScreen
+
+assert(type(screenName) == "string", "Screen Name must be specified when loading _mouse.lua")
+BUTTON:ResetButtonTable(screenName)
+
 local function Input(Event)
     if Event.type == "InputEventType_FirstPress" then
 		if Event.DeviceInput.button == "DeviceButton_left mouse button" then
@@ -18,24 +24,14 @@ local function Input(Event)
     end
 end
 
-local function UpdateLoop()
-    BUTTON:UpdateMouseState()
-    return false
-end
-
 local t = Def.ActorFrame{
-    InitCommand = function(self)
-        BUTTON:ResetButtonTable()
-        self:SetUpdateFunction(UpdateLoop):SetUpdateFunctionInterval(0.01)
-    end,
     OnCommand = function(self)
-        TopScreen = SCREENMAN:GetTopScreen()
-        TopScreen:AddInputCallback(Input)
+        topScreen = SCREENMAN:GetTopScreen()
+        topScreen:AddInputCallback(Input)
     end,
     OffCommand = function(self)
-        BUTTON:ResetButtonTable()
-    end,
-    PlayTopPressedActorCommand = function(self)
+        BUTTON:ResetButtonTable(screenName)
+        TOOLTIP:Hide()
     end,
 }
 

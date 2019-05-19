@@ -32,7 +32,7 @@ function QuadButton(z, depth)
 		OnCommand = function(self)
 			local screen = SCREENMAN:GetTopScreen()
 			if screen ~= nil then
-				BUTTON:AddButton(self, screen, depth)
+				BUTTON:AddButton(self, screen:GetName(), depth)
 			end
 		end,
 		MouseOverCommand = function(self) end,

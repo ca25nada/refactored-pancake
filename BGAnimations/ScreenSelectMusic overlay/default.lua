@@ -4,7 +4,7 @@ local t = Def.ActorFrame{
 	end;
 }
 
-t[#t+1] = LoadActor("../_mouse.lua")
+t[#t+1] = LoadActor("../_mouse.lua", "ScreenSelectMusic")
 
 t[#t+1] = LoadActor(THEME:GetPathG("","Profilebar"))..{
 	OnCommand = function(self)
