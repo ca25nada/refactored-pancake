@@ -105,16 +105,17 @@ end
 
 
 -- Checkboxes
-function CheckBox(z, checked)
+CheckBox = {}
+function CheckBox.New(z, checked)
 
 	local zoom = 0.15
 	local checked = checked
 
 	local t = Def.ActorFrame{
-		InitCommand = function(self)
+		OnCommand = function(self)
 			self:playcommand("Toggle")
 		end,
-		ToggleCommand = function(self)
+		ChildMouseClickCommand = function(self)
 			if checked then 
 				checked = false
 				self:playcommand("Uncheck")
@@ -127,26 +128,24 @@ function CheckBox(z, checked)
 		end,
 		CheckCommand = function(self)
 		end,
-
 		UncheckCommand = function(self)
 		end
 	}
 
-	t[#t+1] = Def.Quad{
+	t[#t+1] = QuadButton(z, 1) .. {
 		InitCommand = function(self)
 			self:zoomto(zoom*100,zoom*100)
-			self:diffuse(color("#000000")):diffusealpha(0.8)
+			self:diffuse(COLOR.TextMain)
+		end,
+		MouseDownCommand = function(self)
+			self:diffuse(COLOR.TextSub2)
+		end,
+		MouseUpCommand = function(self)
+			self:diffuse(COLOR.TextMain)
+		end,
+		MouseReleaseCommand = function(self)
+			self:diffuse(COLOR.TextMain)
 		end
-	}
-
-	t[#t+1] = QuadButton(z) .. {
-		InitCommand = function(self)
-			self:zoomto(zoom*100,zoom*100)
-			self:diffuse(color("#FFFFFF")):diffusealpha(0)
-		end,
-		OnCommand = function(self)
-			BUTTON:AddButtons(self)
-		end,
 	}
 
 	t[#t+1] = LoadActor(THEME:GetPathG("", "_x"))..{

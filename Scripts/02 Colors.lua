@@ -1,7 +1,7 @@
 COLOR = {
 	MainBackground = color("#FFFFFF"),		-- White
 	MainHighlight = color("#FFB4B4"),		-- Pink
-	MainBorder = color("#808080"),			-- Black 70%
+	MainBorder = color("#4C4C4C"),			-- Black 70%
 	UICaution = "", 						-- Yellow
 	UIWarning = "", 						-- Red
 	UINew = "", 							-- Blue

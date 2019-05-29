@@ -399,26 +399,26 @@ end
 function BUTTON.OnMouseDown(self, actor, depth, param)
 	local buttonRoot = actor:GetButtonRoot(depth)
 	actor:playcommand("MouseDown", param)
-	buttonRoot:playcommand("ChildMouseDown")
+	buttonRoot:playcommand("ChildMouseDown", param)
 end
 
 -- Called when a mouse button is released while over the actor.
 function BUTTON.OnMouseUp(self, actor, depth, param)
 	local buttonRoot = actor:GetButtonRoot(depth)
 	actor:playcommand("MouseUp", param)
-	buttonRoot:playcommand("ChildMouseUp")
+	buttonRoot:playcommand("ChildMouseUp", param)
 end
 
 -- Called when both mousedown and mouseup events occur on the same actor.
 function BUTTON.OnMouseClick(self, actor, depth, param)
 	local buttonRoot = actor:GetButtonRoot(depth)
 	actor:playcommand("MouseClick", param)
-	buttonRoot:playcommand("ChildMouseClick")
+	buttonRoot:playcommand("ChildMouseClick", param)
 end
 
 -- Called when a button was pressed but a mouseup event occured while not on the button.
 function BUTTON.OnMouseRelease(self, actor, depth, param)
 	local buttonRoot = actor:GetButtonRoot(depth)
 	actor:playcommand("MouseRelease", param)
-	buttonRoot:playcommand("ChildMouseRelease")
+	buttonRoot:playcommand("ChildMouseRelease", param)
 end
