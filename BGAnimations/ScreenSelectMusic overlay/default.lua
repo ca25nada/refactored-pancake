@@ -97,7 +97,7 @@ t[#t+1] = Def.ActorFrame{
 	},
 }
 
-t[#t+1] = CheckBox.New(10, true) .. {
+t[#t+1] = UIElements.CheckBox(10, true) .. {
 	InitCommand = function(self)
 		self:xy(200,200)
 	end

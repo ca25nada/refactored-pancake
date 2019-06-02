@@ -35,7 +35,7 @@ local t = Def.ActorFrame{
 
 
 -- Border
-t[#t+1] = Border(Values.FrameWidth,Values.FrameHeight,Values.BorderSize)..{
+t[#t+1] = UIElements.Border(Values.FrameWidth,Values.FrameHeight,Values.BorderSize)..{
 	UpdateCommand = function(self)
 		self:diffuse(Values.BorderColor)
 		self:GetChild("MaskSource"):zoomto(Values.FrameWidth, Values.FrameHeight)
@@ -44,7 +44,7 @@ t[#t+1] = Border(Values.FrameWidth,Values.FrameHeight,Values.BorderSize)..{
 }
 
 -- Background Button
-t[#t+1] = QuadButton(Values.ButtonBaseZ)..{
+t[#t+1] = UIElements.QuadButton(Values.ButtonBaseZ)..{
 	UpdateCommand = function(self)
 		self:zoomto(Values.FrameWidth,Values.FrameHeight)
 		self:diffuse(Values.BackGroundColor):diffusealpha(0.9)

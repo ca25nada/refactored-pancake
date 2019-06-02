@@ -16,7 +16,7 @@ t[#t+1] = Def.Quad{
 	OffCommand = function(self) self:visible(false) end
 }
 
-t[#t+1] = Border(500,40,1)..{
+t[#t+1] = UIElements.Border(500,40,1)..{
 	InitCommand = function(self)
 		self:diffuse(COLOR.MainBorder)
 		self:x(250)

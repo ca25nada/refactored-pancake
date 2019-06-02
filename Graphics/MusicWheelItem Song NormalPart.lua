@@ -19,7 +19,7 @@ t[#t+1] = Def.Quad{
 	end
 }
 
-t[#t+1] = QuadButton(1) .. {
+t[#t+1] = UIElements.QuadButton(1) .. {
 	InitCommand= function(self) 
 		self:x(0)
 		self:zoomto(500,40)
@@ -127,7 +127,7 @@ t[#t+1] = LoadFont("Common Normal") .. {
 	end
 }
 
-t[#t+1] = Border(500,40,1)..{
+t[#t+1] = UIElements.Border(500,40,1)..{
 	InitCommand = function(self)
 		self:diffuse(COLOR.MainBorder)
 		self:x(250)

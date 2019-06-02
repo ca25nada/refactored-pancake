@@ -1,5 +1,7 @@
+UIElements = {}
+
 -- Adapted from  Simply-Love-SM5/Scripts/SL-Helpers.lua
-function Border(width, height, bw)
+function UIElements.Border(width, height, bw)
 	return Def.ActorFrame {
 		Def.Quad {
 			Name = "MaskSource",
@@ -23,7 +25,7 @@ function Border(width, height, bw)
 end
 
 -- Basic clickable button implementation with quads
-function QuadButton(z, depth)
+function UIElements.QuadButton(z, depth)
 
 	local t = Def.Quad{
 		InitCommand = function(self) 
@@ -60,7 +62,7 @@ function ButtonDemo(z)
 		end,
 	}
 	
-	t[#t+1] = Border(150, 50, 5)..{
+	t[#t+1] = UIElements.Border(150, 50, 5)..{
 		InitCommand = function(self)
 			self:visible(false):diffuse(color("#000000"))
 		end,
@@ -78,7 +80,7 @@ function ButtonDemo(z)
 		end
 	}
 
-	t[#t+1] = QuadButton(z, 1)..{
+	t[#t+1] = UIElements.QuadButton(z, 1)..{
 		InitCommand= function(self) 
 			self:z(z):zoomto(150,50):diffuse(color("#000000")):diffusealpha(0.5)
 		end,
@@ -105,8 +107,7 @@ end
 
 
 -- Checkboxes
-CheckBox = {}
-function CheckBox.New(z, checked)
+function UIElements.CheckBox(z, checked)
 
 	local zoom = 0.15
 	local checked = checked
@@ -132,7 +133,7 @@ function CheckBox.New(z, checked)
 		end
 	}
 
-	t[#t+1] = QuadButton(z, 1) .. {
+	t[#t+1] = UIElements.QuadButton(z, 1) .. {
 		InitCommand = function(self)
 			self:zoomto(zoom*100,zoom*100)
 			self:diffuse(COLOR.TextMain)
@@ -168,3 +169,8 @@ function CheckBox.New(z, checked)
 
 	return t
 end
+
+function UIElements.Slider()
+
+end
+
