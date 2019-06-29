@@ -88,8 +88,6 @@ Button rollover detection only takes the following into account:
 Any other transformations applied on the actor or any of its parent/ancestors will cause the button rollover detection to fail.
 	e.g. Skew, rotations on X/Y axis, zoom on parent actors.
 
-Currently, BUTTON does not distinguish between different mouse buttons. 
-
 --]]
 
 
@@ -192,30 +190,30 @@ end
 -- Button Rollover detection
 function Actor.IsOver(self, mouseX, mouseY)
 
-	if mouseX == nil then
-		mouseX = INPUTFILTER:GetMouseX()
-	end
+    if mouseX == nil then
+        mouseX = INPUTFILTER:GetMouseX()
+    end
 
-	if mouseY == nil then
-		mouseY = INPUTFILTER:GetMouseY()
+    if mouseY == nil then
+        mouseY = INPUTFILTER:GetMouseY()
     end
     
     local rotationZ = self:GetTrueRotationZ()
 
     local x, y = self:GetX(), self:GetY()
     local tx, ty =  self:GetTrueX(), self:GetTrueY()
-	local hAlign, vAlign = self:GetHAlign(), self:GetVAlign()
+    local hAlign, vAlign = self:GetHAlign(), self:GetVAlign()
     local w, h = self:GetZoomedWidth(), self:GetZoomedHeight()
 
     -- Since the boundaries for a rotated rectangle is a pain to calculate, rotate the mouse X/Y coordinates in the opposite direction and compare.
     local newMouseX, newMouseY = rotateFromOrigin(mouseX-tx, mouseY-ty, -rotationZ)
     newMouseX = newMouseX + tx
     newMouseY = newMouseY + ty
-
+    
     local withinX = (newMouseX >= (tx-(hAlign*w))) and (newMouseX <= ((tx+w)-(hAlign*w)))
     local withinY = (newMouseY >= (ty-(vAlign*h))) and (newMouseY <= ((ty+h)-(vAlign*h)))
 
-	return (withinX and withinY)
+    return (withinX and withinY)
 end
 
 -- Singleton for button related events.
@@ -224,8 +222,8 @@ BUTTON = {
 	DepthTable = {}, -- Button "depth" (# of parent actors until it reaches the "root" of the button)
 	CurTopButton = nil, -- Current top button that the mouse is hovering over.
 	CurTopButtonDepth = 0,
-	CurDownButton = nil, -- Current button that is being held down.
-	CurDownButtonDepth = 0,
+	CurDownButton = {}, -- Current button that is being held down.
+	CurDownButtonDepth = {},
 	UpdateOnlyOnMouseMovement = false
 }
 
@@ -234,7 +232,7 @@ function BUTTON.ResetButtonTable(self, screenName)
     if screenName ~= nil then
 		self.ButtonTable[screenName] = nil
 		self.CurTopButton = nil
-		self.CurDownButton = nil
+		self.CurDownButton = {}
     end
 end
 
@@ -291,18 +289,21 @@ function BUTTON.UpdateMouseState(self)
 	self.CurTopButton = curButton
 	self.CurTopButtonDepth = curButtonDepth
 	
-	if self.CurDownButton ~= nil then
-		local localX, localY = self.CurDownButton:GetLocalMousePos(self.MouseX, self.MouseY, self.CurDownButtonDepth)
-		self:OnMouseDrag(self.CurDownButton, self.CurDownButtonDepth, {MouseX = localX, MouseY = localY})
+	for event,curDownButton in pairs(self.CurDownButton) do
+
+		if curDownButton ~= nil then
+			local localX, localY = curDownButton:GetLocalMousePos(self.MouseX, self.MouseY, self.CurDownButtonDepth[event])
+			self:OnMouseDrag(curDownButton, self.CurDownButtonDepth[event], {event = event,MouseX = localX, MouseY = localY})
+		end
 	end
 end
 
 -- Record where the mousedown event occured.
 function BUTTON.SetMouseDown(self, event)
-	self.CurDownButton = self.CurTopButton
-	self.CurDownButtonDepth = self.CurTopButtonDepth
-	if self.CurDownButton ~= nil then -- Only call onmousedown if a button is pressed.
-		self:OnMouseDown(self.CurDownButton, self.CurDownButtonDepth)
+	self.CurDownButton[event] = self.CurTopButton
+	self.CurDownButtonDepth[event] = self.CurTopButtonDepth
+	if self.CurDownButton[event] ~= nil then -- Only call onmousedown if a button is pressed.
+		self:OnMouseDown(self.CurDownButton[event], self.CurDownButtonDepth[event], {event = event})
 	end
 end
 
@@ -312,34 +313,34 @@ function BUTTON.SetMouseUp(self, event)
 	-- Make local copies as the values can change before the function ends.
 	local curTopButton = self.CurTopButton
 	local curTopButtonDepth = self.CurTopButtonDepth
-	local curDownButton = self.CurDownButton
-	local curDownButtonDepth = self.CurDownButtonDepth
+	local curDownButton = self.CurDownButton[event]
+	local curDownButtonDepth = self.CurDownButtonDepth[event]
 
 	if curTopButton == nil then
 		if curDownButton == nil then -- Clicked non-button, release at non-button
             return
             
 		else -- Clicked button, release at non-button
-			self:OnMouseRelease(curDownButton, curDownButtonDepth)
+			self:OnMouseRelease(curDownButton, curDownButtonDepth, {event = event})
 		end
 
 	else
 		if curDownButton == nil then -- Clicked non-button, release at button
-			self:OnMouseUp(curTopButton, curTopButtonDepth)
+			self:OnMouseUp(curTopButton, curTopButtonDepth, {event = event})
 
 		elseif curDownButton == curTopButton then -- Clicked button, released on same button
-			self:OnMouseUp(curTopButton, curTopButtonDepth)
-			self:OnMouseClick(curTopButton, curTopButtonDepth)
+			self:OnMouseUp(curTopButton, curTopButtonDepth, {event = event})
+			self:OnMouseClick(curTopButton, curTopButtonDepth, {event = event})
 
 		else -- Clicked button, released at different button
-			self:OnMouseUp(curTopButton, curTopButtonDepth)
-			self:OnMouseRelease(curDownButton, curDownButtonDepth)
+			self:OnMouseUp(curTopButton, curTopButtonDepth, {event = event})
+			self:OnMouseRelease(curDownButton, curDownButtonDepth, {event = event})
 		end
 	end
 	
 
-	self.CurDownButton = nil
-	self.CurDownButtonDepth = 0
+	self.CurDownButton[event] = nil
+	self.CurDownButtonDepth[event] = nil
 
 end
 

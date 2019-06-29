@@ -86,10 +86,10 @@ function ButtonDemo(z)
 		end,
 		MouseOverCommand = function(self) self:GetParent():playcommand("RolloverUpdate",{update = "over"}) end,
 		MouseOutCommand = function(self) self:GetParent():playcommand("RolloverUpdate",{update = "out"}) end,
-		MouseUpCommand = function(self) self:diffuse(color("#FF0000")):diffusealpha(0.5) self:GetParent():playcommand("Click",{update = "OnMouseUp"}) end,
-		MouseDownCommand = function(self) self:diffuse(color("#00FF00")):diffusealpha(0.5) self:GetParent():playcommand("Click",{update = "OnMouseDown"}) end,
-		MouseClickCommand = function(self) self:diffuse(color("#0000FF")):diffusealpha(0.5) self:GetParent():playcommand("Click",{update = "OnMouseClicked"}) end,
-		MouseReleaseCommand = function(self) self:diffuse(color("#FF00FF")):diffusealpha(0.5) self:GetParent():playcommand("Click",{update = "OnMouseReleased"}) end,
+		MouseUpCommand = function(self,params) self:diffuse(color("#FF0000")):diffusealpha(0.5) self:GetParent():playcommand("Click",{update = "OnMouseUp", event = params.event}) end,
+		MouseDownCommand = function(self,params) self:diffuse(color("#00FF00")):diffusealpha(0.5) self:GetParent():playcommand("Click",{update = "OnMouseDown", event = params.event}) end,
+		MouseClickCommand = function(self,params) self:diffuse(color("#0000FF")):diffusealpha(0.5) self:GetParent():playcommand("Click",{update = "OnMouseClicked", event = params.event}) end,
+		MouseReleaseCommand = function(self,params) self:diffuse(color("#FF00FF")):diffusealpha(0.5) self:GetParent():playcommand("Click",{update = "OnMouseReleased", event = params.event}) end,
 		MouseDragCommand = function(self, params) self:GetParent():playcommand("DragUpdate", params) end,
 	}
 
@@ -98,7 +98,7 @@ function ButtonDemo(z)
 			self:y(0):zoom(0.6):settext("init")
 		end,
 		ClickCommand = function(self, params)
-			self:settextf("X:%.0f Y:%.0f \nAngle:%.0f",self:GetTrueX(), self:GetTrueY(), self:GetTrueRotationZ()%360)
+			self:settextf("X:%.0f Y:%.0f \nAngle:%.0f \n%s",self:GetTrueX(), self:GetTrueY(), self:GetTrueRotationZ()%360, params.event)
 		end,
 	}
 
@@ -171,6 +171,10 @@ function UIElements.CheckBox(z, checked)
 end
 
 function UIElements.Slider()
+
+end
+
+function UIElements.DoubleSlider()
 
 end
 
