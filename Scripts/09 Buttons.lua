@@ -227,6 +227,30 @@ BUTTON = {
 	UpdateOnlyOnMouseMovement = false
 }
 
+-- List of DeviceInput enum strings to handle for button inputs.
+-- Check DeviceButton under http://dguzek.github.io/Lua-For-SM5/API/Lua.xml#Enums for all possible buttons.
+BUTTON.AcceptedDeviceInput = {
+	["DeviceButton_left mouse button"] = true,
+	["DeviceButton_right mouse button"] = true,
+	["DeviceButton_middle mouse button"] = true
+}
+
+-- Function for handling input callbacks
+-- Call screen:AddInputCallback(BUTTON.InputCallback) on the OnCommand of the screen where you want mouse inputs.
+function BUTTON.InputCallback(event)
+
+	if BUTTON.AcceptedDeviceInput[event.DeviceInput.button] then
+		if event.type == "InputEventType_FirstPress" then
+			BUTTON:SetMouseDown(event.DeviceInput.button)
+		end
+
+		if event.type == "InputEventType_Release" then
+			BUTTON:SetMouseUp(event.DeviceInput.button)
+		end
+	end
+
+end
+
 -- Resets the list of buttons currently added to the given screen. Call when the screen is being initialized.
 function BUTTON.ResetButtonTable(self, screenName)
     if screenName ~= nil then
