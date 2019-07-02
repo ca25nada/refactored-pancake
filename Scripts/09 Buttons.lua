@@ -67,13 +67,22 @@ MouseReleaseCommand
 Is played once when a button was pressed, but released while the mouse was no longer over the button.  The conditions are checked every time the BUTTON:SetMouseUp() function is called.
 ChildMouseReleaseCommand is also played for the actor designated as the "root" as specified by the depth value.
 
-MouseDragCommand
+MouseHoldCommand
 Is played every time BUTTON:UpdateMouseState() is called while a button is considered to be held down (e.g. between MouseDown and MouseUp events).
 The Following parameters are also passed:
 	MouseX - X coordinates relative to the actor designated as the "root" as specified by the depth value.
 	MouseY - Y coordinates relative to the actor designated as the "root" as specified by the depth value.
 
-ChildMouseDragCommand is also played for the actor designated as the "root" as specified by the depth value.
+	ChildMouseHoldCommand is also played for the actor designated as the "root" as specified by the depth value.
+
+MouseDragCommand
+Is played every time BUTTON:UpdateMouseState() is called while a button is considered to be held down and movement is detected since the last time the function was called.
+	(e.g. holding a button down and dragging it around).
+The Following parameters are also passed:
+	MouseX - X coordinates relative to the actor designated as the "root" as specified by the depth value.
+	MouseY - Y coordinates relative to the actor designated as the "root" as specified by the depth value.
+
+	ChildMouseDragCommand is also played for the actor designated as the "root" as specified by the depth value.
 
 ___________________________________________________
 Limitations:
@@ -294,10 +303,10 @@ function BUTTON.UpdateMouseState(self)
 		return
 	end
 
-	newX = INPUTFILTER:GetMouseX()
-	newY = INPUTFILTER:GetMouseY()
-	self.MouseX = newX
-	self.MouseY = newY
+	local oldX = self.MouseX
+	local oldY = self.MouseY
+	self.MouseX = INPUTFILTER:GetMouseX()
+	self.MouseY = INPUTFILTER:GetMouseY()
 
 
 	local curButton, curButtonDepth = self:GetTopButton(self.MouseX, self.MouseY)
@@ -317,7 +326,10 @@ function BUTTON.UpdateMouseState(self)
 
 		if curDownButton ~= nil then
 			local localX, localY = curDownButton:GetLocalMousePos(self.MouseX, self.MouseY, self.CurDownButtonDepth[event])
-			self:OnMouseDrag(curDownButton, self.CurDownButtonDepth[event], {event = event,MouseX = localX, MouseY = localY})
+			if oldX ~= self.MouseX or oldY ~= self.MouseY then
+				self:OnMouseDrag(curDownButton, self.CurDownButtonDepth[event], {event = event,MouseX = localX, MouseY = localY})
+			end
+			self:OnMouseHold(curDownButton, self.CurDownButtonDepth[event], {event = event,MouseX = localX, MouseY = localY})
 		end
 	end
 end
@@ -401,51 +413,50 @@ function BUTTON.GetTopButton(self, x, y)
 	return topButton, topButtonDepth
 end
 
+-- Called while an actor is held down.
+function BUTTON.OnMouseHold(self, actor, depth, param)
+	actor:playcommand("MouseHold", param)
+	actor:GetButtonRoot(depth):playcommand("ChildMouseHold", param)
+end
+
 -- Called when the mouse is moved while an actor is held down.
 function BUTTON.OnMouseDrag(self, actor, depth, param)
-	local buttonRoot = actor:GetButtonRoot(depth)
 	actor:playcommand("MouseDrag", param)
-	buttonRoot:playcommand("ChildMouseDrag", param)
+	actor:GetButtonRoot(depth):playcommand("ChildMouseDrag", param)
 end
 
 -- Called when mouse begins to hover over the actor.
 function BUTTON.OnMouseOver(self, actor, depth)
-	local buttonRoot = actor:GetButtonRoot(depth)
 	actor:playcommand("MouseOver")
-	buttonRoot:playcommand("ChildMouseOver")
+	actor:GetButtonRoot(depth):playcommand("ChildMouseOver")
 end
 
 -- Called when the mouse is no longer hovering over the actor.
 function BUTTON.OnMouseOut(self, actor, depth)
-	local buttonRoot = actor:GetButtonRoot(depth)
 	actor:playcommand("MouseOut")
-	buttonRoot:playcommand("ChildMouseOut")
+	actor:GetButtonRoot(depth):playcommand("ChildMouseOut")
 end
 
 -- Called when a mouse button is pressed while over the actor.
 function BUTTON.OnMouseDown(self, actor, depth, param)
-	local buttonRoot = actor:GetButtonRoot(depth)
 	actor:playcommand("MouseDown", param)
-	buttonRoot:playcommand("ChildMouseDown", param)
+	actor:GetButtonRoot(depth):playcommand("ChildMouseDown", param)
 end
 
 -- Called when a mouse button is released while over the actor.
 function BUTTON.OnMouseUp(self, actor, depth, param)
-	local buttonRoot = actor:GetButtonRoot(depth)
 	actor:playcommand("MouseUp", param)
-	buttonRoot:playcommand("ChildMouseUp", param)
+	actor:GetButtonRoot(depth):playcommand("ChildMouseUp", param)
 end
 
 -- Called when both mousedown and mouseup events occur on the same actor.
 function BUTTON.OnMouseClick(self, actor, depth, param)
-	local buttonRoot = actor:GetButtonRoot(depth)
 	actor:playcommand("MouseClick", param)
-	buttonRoot:playcommand("ChildMouseClick", param)
+	actor:GetButtonRoot(depth):playcommand("ChildMouseClick", param)
 end
 
 -- Called when a button was pressed but a mouseup event occured while not on the button.
 function BUTTON.OnMouseRelease(self, actor, depth, param)
-	local buttonRoot = actor:GetButtonRoot(depth)
 	actor:playcommand("MouseRelease", param)
-	buttonRoot:playcommand("ChildMouseRelease", param)
+	actor:GetButtonRoot(depth):playcommand("ChildMouseRelease", param)
 end
