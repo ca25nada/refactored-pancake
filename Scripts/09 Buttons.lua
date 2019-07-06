@@ -176,7 +176,7 @@ function Actor.GetButtonRoot(self, depth)
 	return buttonRoot
 end
 
--- Gets the X/Y coordinates relative to the actor's "root" node.
+-- Gets the X/Y coordinates relative to the parent of the actor's "root" node.
 -- "root" node is specified by the depth value, which is the number of parent nodes needed to reach the "root"
 function Actor.GetLocalMousePos(self, mouseX, mouseY, depth)
     if self == nil then
@@ -327,19 +327,22 @@ function BUTTON.UpdateMouseState(self)
 		if curDownButton ~= nil then
 			local localX, localY = curDownButton:GetLocalMousePos(self.MouseX, self.MouseY, self.CurDownButtonDepth[event])
 			if oldX ~= self.MouseX or oldY ~= self.MouseY then
-				self:OnMouseDrag(curDownButton, self.CurDownButtonDepth[event], {event = event,MouseX = localX, MouseY = localY})
+				self:OnMouseDrag(curDownButton, self.CurDownButtonDepth[event], {event = event, MouseX = localX, MouseY = localY})
 			end
-			self:OnMouseHold(curDownButton, self.CurDownButtonDepth[event], {event = event,MouseX = localX, MouseY = localY})
+			self:OnMouseHold(curDownButton, self.CurDownButtonDepth[event], {event = event, MouseX = localX, MouseY = localY})
 		end
 	end
 end
 
 -- Record where the mousedown event occured.
 function BUTTON.SetMouseDown(self, event)
+	local localX, localY
+
 	self.CurDownButton[event] = self.CurTopButton
 	self.CurDownButtonDepth[event] = self.CurTopButtonDepth
 	if self.CurDownButton[event] ~= nil then -- Only call onmousedown if a button is pressed.
-		self:OnMouseDown(self.CurDownButton[event], self.CurDownButtonDepth[event], {event = event})
+		localX, localY = self.CurDownButton[event]:GetLocalMousePos(self.MouseX, self.MouseY, self.CurDownButtonDepth[event])
+		self:OnMouseDown(self.CurDownButton[event], self.CurDownButtonDepth[event], {event = event, MouseX = localX, MouseY = localY})
 	end
 end
 
@@ -351,26 +354,31 @@ function BUTTON.SetMouseUp(self, event)
 	local curTopButtonDepth = self.CurTopButtonDepth
 	local curDownButton = self.CurDownButton[event]
 	local curDownButtonDepth = self.CurDownButtonDepth[event]
+	local localX, localY
 
 	if curTopButton == nil then
 		if curDownButton == nil then -- Clicked non-button, release at non-button
             return
             
 		else -- Clicked button, release at non-button
-			self:OnMouseRelease(curDownButton, curDownButtonDepth, {event = event})
+			localX, localY = curDownButton:GetLocalMousePos(self.MouseX, self.MouseY, curDownButtonDepth)
+			self:OnMouseRelease(curDownButton, curDownButtonDepth, {event = event, MouseX = localX, MouseY = localY})
 		end
 
 	else
 		if curDownButton == nil then -- Clicked non-button, release at button
-			self:OnMouseUp(curTopButton, curTopButtonDepth, {event = event})
+			localX, localY = curTopButton:GetLocalMousePos(self.MouseX, self.MouseY, curTopButtonDepth)
+			self:OnMouseUp(curTopButton, curTopButtonDepth, {event = event, MouseX = localX, MouseY = localY})
 
 		elseif curDownButton == curTopButton then -- Clicked button, released on same button
-			self:OnMouseUp(curTopButton, curTopButtonDepth, {event = event})
-			self:OnMouseClick(curTopButton, curTopButtonDepth, {event = event})
+			localX, localY = curTopButton:GetLocalMousePos(self.MouseX, self.MouseY, curTopButtonDepth)
+			self:OnMouseUp(curTopButton, curTopButtonDepth, {event = event, MouseX = localX, MouseY = localY})
+			self:OnMouseClick(curTopButton, curTopButtonDepth, {event = event, MouseX = localX, MouseY = localY})
 
 		else -- Clicked button, released at different button
-			self:OnMouseUp(curTopButton, curTopButtonDepth, {event = event})
-			self:OnMouseRelease(curDownButton, curDownButtonDepth, {event = event})
+			localX, localY = curTopButton:GetLocalMousePos(self.MouseX, self.MouseY, curTopButtonDepth)
+			self:OnMouseUp(curTopButton, curTopButtonDepth, {event = event, MouseX = localX, MouseY = localY})
+			self:OnMouseRelease(curDownButton, curDownButtonDepth, {event = event, MouseX = localX, MouseY = localY})
 		end
 	end
 	
