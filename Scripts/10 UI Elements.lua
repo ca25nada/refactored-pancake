@@ -39,10 +39,12 @@ function UIElements.QuadButton(z, depth)
 		end,
 		MouseOverCommand = function(self) end,
 		MouseOutCommand = function(self) end,
-		MouseUpCommand = function(self) end,
-		MouseDownCommand = function(self) end,
-		MouseClickCommand = function(self) end,
-		MouseReleaseCommand = function(self) end,
+		MouseUpCommand = function(self, params) end,
+		MouseDownCommand = function(self, params) end,
+		MouseClickCommand = function(self, params) end,
+		MouseReleaseCommand = function(self, params) end,
+		MouseDragCommand = function(self, params) end,
+		MouseHoldCommand = function(self, params) end,
 	}
 	return t
 end
@@ -170,7 +172,66 @@ function UIElements.CheckBox(z, checked)
 	return t
 end
 
-function UIElements.Slider()
+function UIElements.Slider(z, width)
+	local zoom = 0.15
+
+	local t = Def.ActorFrame{
+		SliderMovedCommand = function(self, params)
+			self:GetChild("ValueText"):settext(params.Value)
+		end,
+	}
+
+	t[#t+1] = UIElements.QuadButton(z+1, 0) .. {
+		Name = "SliderBar",
+		InitCommand = function(self)
+			self:zoomto(width, zoom*100/2)
+			self:halign(0)
+		end,
+		MouseOverCommand = function(self) end,
+		MouseOutCommand = function(self) end,
+		MouseUpCommand = function(self, params) end,
+		MouseDownCommand = function(self, params)
+			local mouseX = clamp(params.MouseX,0,width)
+			self:GetParent():GetChild("SliderHandle"):x(mouseX)
+			self:GetParent():playcommand("SliderMoved", {Value = mouseX/width})
+		end,
+		MouseClickCommand = function(self, params) end,
+		MouseReleaseCommand = function(self, params) end,
+		MouseDragCommand = function(self, params)
+			local mouseX = clamp(params.MouseX,0,width)
+			self:GetParent():GetChild("SliderHandle"):x(mouseX)
+			self:GetParent():playcommand("SliderMoved", {Value = mouseX/width})
+		end,
+	}
+
+	t[#t+1] = UIElements.QuadButton(z, 0) .. {
+		Name = "SliderHandle",
+		InitCommand = function(self)
+			self:zoomto(zoom*100,zoom*100)
+			self:diffuse(COLOR.TextMain)
+			self:x(0)
+		end,
+		MouseOverCommand = function(self) end,
+		MouseOutCommand = function(self) end,
+		MouseUpCommand = function(self, params) end,
+		MouseDownCommand = function(self, params) end,
+		MouseClickCommand = function(self, params) end,
+		MouseReleaseCommand = function(self, params) end,
+		MouseDragCommand = function(self, params)
+			local mouseX = clamp(params.MouseX,0,width)
+			self:x(mouseX)
+			self:GetParent():playcommand("SliderMoved", {Value = mouseX/width})
+		end,
+	}
+
+	t[#t+1] = LoadFont("Common Normal") .. {
+		Name = "ValueText",
+		InitCommand = function(self)
+			self:x(width + 10):zoom(0.6):halign(0):diffuse(color("#000000"))
+		end;
+	}
+
+	return t
 
 end
 

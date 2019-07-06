@@ -103,4 +103,10 @@ t[#t+1] = UIElements.CheckBox(10, true) .. {
 	end
 }
 
+t[#t+1] = UIElements.Slider(10, 400) .. {
+	InitCommand = function(self)
+		self:xy(400,400)
+	end
+}
+
 return t
