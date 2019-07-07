@@ -9,6 +9,10 @@ COLOR = {
 	TextMain = color("#4C4C4C"),			-- Black 70%
 	TextSub1 = color("#666666"),			-- Black 60%
 	TextSub2 = color("#808080"),			-- Black 50%/Grey
+	TextMainLight = color("#FFFFFF"),		-- White
+	TextSub1Light = color("#b2b2b2"),		-- Black 30%
+	TextSub2Light = color("#999999"),		-- Black 40%
+
 	SongLong = HSV(36,0.5,0.75),			-- Orange
 	SongMarathon = HSV(342,0.5,0.75),		-- Red
 	SongUltraMarathon = HSV(288,0.5,0.75),	-- Purple

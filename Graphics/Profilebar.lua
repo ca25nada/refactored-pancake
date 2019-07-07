@@ -8,8 +8,8 @@ local Values = {
 	FrameWidth = 250,
 	FrameHeight = 50,
 	BorderSize = 1,
-	ButtonBaseZ = 0,
-	BackGroundColor = COLOR.MainBackground,
+	ButtonZ = 0,
+	BackgroundColor = COLOR.MainBackground,
 	TextColor = COLOR.TextMain,
 	BorderColor = COLOR.MainBorder,
 	ProfileTextScale = 0.8,
@@ -37,18 +37,18 @@ local t = Def.ActorFrame{
 -- Border
 t[#t+1] = UIElements.Border(Values.FrameWidth,Values.FrameHeight,Values.BorderSize)..{
 	UpdateCommand = function(self)
-		self:diffuse(Values.BorderColor)
+		self:diffuse(COLOR.MainBorder)
 		self:GetChild("MaskSource"):zoomto(Values.FrameWidth, Values.FrameHeight)
 		self:GetChild("MaskDest"):zoomto(Values.FrameWidth+Values.BorderSize*2, Values.FrameHeight+Values.BorderSize*2)
 	end
 }
 
 -- Background Button
-t[#t+1] = UIElements.QuadButton(Values.ButtonBaseZ)..{
+t[#t+1] = UIElements.QuadButton(Values.ButtonZ)..{
 	UpdateCommand = function(self)
 		self:zoomto(Values.FrameWidth,Values.FrameHeight)
-		self:diffuse(Values.BackGroundColor):diffusealpha(0.9)
-		self:z(Values.ButtonBaseZ)
+		self:diffuse(COLOR.MainBackground):diffusealpha(0.9)
+		self:z(Values.ButtonZ)
 	end
 }
 
@@ -81,7 +81,7 @@ t[#t+1] = LoadFont("Common Normal")..{
 		self:halign(0)
 		self:zoom(Values.ProfileTextScale)
 		self:maxwidth((Values.FrameWidth-Values.FrameHeight-10)/Values.ProfileTextScale)
-		self:diffuse(Values.TextColor)
+		self:diffuse(COLOR.TextMain)
 		self:settext(Values.ProfileName)
 	end
 }
