@@ -1,6 +1,13 @@
+local wheel
+local screen
+
 local t = Def.ActorFrame{
 	InitCommand = function(self)
 		self:rotationz(0)
+	end;
+	OnCommand = function(self)
+		screen = SCREENMAN:GetTopScreen()
+		wheel = screen:GetMusicWheel()
 	end;
 }
 
@@ -8,7 +15,7 @@ t[#t+1] = LoadActor("../_mouse.lua", "ScreenSelectMusic")
 
 t[#t+1] = LoadActor(THEME:GetPathG("","Profilebar"))..{
 	OnCommand = function(self)
-		self:xy(SCREEN_WIDTH-140,45)
+		self:xy(SCREEN_WIDTH-150,45)
 		self:playcommand("Set")
 	end,
 	SetCommand = function(self)
@@ -38,6 +45,27 @@ t[#t+1] = LoadActor(THEME:GetPathG("","Profilebar"))..{
 	OnlineUpdateMessageCommand = function(self) self:playcommand("Set") end,
 }
 
+t[#t+1] = LoadActor(THEME:GetPathG("","Banner"))..{
+	OnCommand = function(self)
+		self:xy(SCREEN_WIDTH-260,200)
+	end,
+	CurrentSongChangedMessageCommand = function(self) 
+		local song = GAMESTATE:GetCurrentSong()
+		if song then
+			self:playcommand("SongUpdate",{Song = song})
+		else
+			self:playcommand("SongUpdate",{Song = nil, Group = wheel:GetSelectedSection()})
+		end
+	end,
+	CurrentRateChangedMessageCommand = function(self) 
+		self:playcommand("RateUpdate",{Steps = GAMESTATE:GetCurrentSteps(PLAYER)})
+	end,
+	CurrentStepsP1ChangedMessageCommand = function(self)
+		self:playcommand("StepsUpdate",{Steps = GAMESTATE:GetCurrentSteps(PLAYER)})
+	end,
+
+
+}
 
 t[#t+1] = StandardDecorationFromFileOptional("Header","Header")
 
